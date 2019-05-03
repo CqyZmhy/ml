@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <script type="text/javascript" src="js/echarts.js"></script>
+    <script type="text/javascript" src="js/jquery-3.3.1.js"></script>
+    <script type="text/javascript" src="js/jsonTool.js"></script>
+</head>
+<body style="height: 600px; margin: 0">
+<div id="container" style="height: 100%"></div>
+<script type="text/javascript">
+    //	app.title = '力引导布局';
+        var dom = document.getElementById("container");
+        var myChart = echarts.init(dom);
+        var app = {};
+        option = null;
+        myChart.showLoading();
+        $.get('data/threeCountriesResult111.json', function (json) {
+            myChart.hideLoading();
+            var graph = json;
+            var categories = [];
+            for (var i = 0; i < 11; i++) {
+                categories[i] = {
+                    name: '类目' + i
+                };
+            }
+            graph.nodes.forEach(function (node) {
+                node.itemStyle = null;
+                node.symbolSize = 10;
+                node.value = node.symbolSize;
+                node.label = {
+                    normal: {
+                        show: node.symbolSize > 0
+                    }
+                };
+                node.category = node.attributes.modularity_class;
+                // Use random x, y
+                node.x = node.y = null;
+                node.draggable = true;
+            });
+            option = {
+                title: {
+                    text: 'The third result',
+                    subtext: 'Default layout',
+                    top: 'bottom',
+                    left: 'right'
+                },
+                tooltip: {},
+                /*legend: [{
+                    // selectedMode: 'single',
+                    data: categories.map(function (a) {
+                        return a.name;
+                    })
+                }],*/
+                animation: false,
+                series : [
+                    {
+//                      name: 'Les Miserables',
+                        type: 'graph',
+                        layout: 'force',
+                        data: graph.nodes,
+                        links: graph.links,
+                        categories: categories,
+                        roam: true,
+                        label: {
+                            normal: {
+                                position: 'right'
+                            }
+                        },
+                        lineStyle: {
+                            normal: {
+                                color: 'source',
+                                curveness: 0.3,
+                                width: 0.5
+                            }
+                        },
+                        force: {
+                            repulsion: 100
+                        }
+                    }
+                ]
+            };
+
+            myChart.setOption(option);
+        }, 'json');
+    </script>
+</body>
+</html>
